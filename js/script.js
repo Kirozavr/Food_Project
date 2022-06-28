@@ -1,4 +1,5 @@
 window.addEventListener("DOMContentLoaded", () => {
+    // Tabs
     const tabs = document.querySelectorAll(".tabheader__item"),
           tabsContent = document.querySelectorAll('.tabcontent'),
           tabsParent = document.querySelector('.tabheader__items');
@@ -14,7 +15,7 @@ window.addEventListener("DOMContentLoaded", () => {
             item.classList.remove('tabheader__item_active');
         });
     }
-    function showTabsContent(i = 0) {Ё
+    function showTabsContent(i = 0) {
         // показываем первый таб на странице. также назначем ему класс анимации
         tabsContent[i].classList.add('show', 'fade');
         tabsContent[i].classList.remove('hide');
@@ -37,5 +38,28 @@ window.addEventListener("DOMContentLoaded", () => {
     });
     hideTabsContent();
     showTabsContent();
+    // Timer
+    const deadLine = '2022-06-30';
+// функция получает разницу между временем конца таймера и временем на ПК пользователя.
+// Затем преобразует миллисекунды в дни, часы, минуты, секунды.
+// На выходе получаем объект, который содержит в себе время до конца таймера = total, и т.д.
+    function getTimeRemaining(endTime) {
+        const t = Date.parse(endTime) - Date.parse(new Date()),
+              days = Math.floor(t / (1000 * 60 * 60 * 24)),
+              hours = Math.floor((t / (1000 * 60 * 60)) % 24),
+              minutes = Math.floor((t / 1000 / 60) % 60),
+              seconds = Math.floor((t / 1000) % 60);
+        return {
+            'total': t,
+            'days': days,
+            'hours': hours,
+            'minutes': minutes,
+            'seconds': seconds
+        };
+    }
 });
+
+
+
+
 
