@@ -39,7 +39,7 @@ window.addEventListener("DOMContentLoaded", () => {
     hideTabsContent();
     showTabsContent();
     // Timer
-    const deadLine = '2022-06-30';
+    const deadLine = '2022-07-30';
 // функция получает разницу между временем конца таймера и временем на ПК пользователя.
 // Затем преобразует миллисекунды в дни, часы, минуты, секунды.
 // На выходе получаем объект, который содержит в себе время до конца таймера = total, и т.д.
@@ -57,9 +57,39 @@ window.addEventListener("DOMContentLoaded", () => {
             'seconds': seconds
         };
     }
+    function setClock(selector, endtime) {
+        // получаем эелементы со страницы
+        const timer = document.querySelector(selector),
+              days = timer.querySelector("#days"),
+              hours = timer.querySelector("#hours"),
+              minutes = timer.querySelector("#minutes"),
+              seconds = timer.querySelector("#seconds"),
+            //   запускает функцию updateClock каждую секунду
+              timeInterval = setInterval(updateClock, 1000);
+        // вызываем функцию здесь, чтобы не ждать секунду 
+        updateClock();
+        // функция для подстановки нуля, если число однозначное
+        function getZero(num) {
+            if (num >= 0 && num < 10) {
+                return `0${num}`;
+            } else {
+                return num;
+            }
+        }
+        // обновляем таймер
+        function updateClock() {
+            // вызываем функцию, чтобы получить объект из функции getTimeRemaining
+            const  t = getTimeRemaining(deadLine);
+            // из объекта вставляем лементы в HTML
+            days.innerHTML = getZero(t.days);
+            hours.innerHTML = getZero(t.hours);
+            minutes.innerHTML = getZero(t.minutes);
+            seconds.innerHTML = getZero(t.seconds);
+            // останавливем таймер, если время вышло
+            if (t.total <= 0) {
+                clearInterval(timeInterval);
+            }
+        }
+    }
+    setClock('.timer', deadLine);
 });
-
-
-
-
-
