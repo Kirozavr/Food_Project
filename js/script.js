@@ -1,8 +1,9 @@
 window.addEventListener("DOMContentLoaded", () => {
     // Tabs
     const tabs = document.querySelectorAll(".tabheader__item"),
-          tabsContent = document.querySelectorAll('.tabcontent'),
-          tabsParent = document.querySelector('.tabheader__items');
+        tabsContent = document.querySelectorAll('.tabcontent'),
+        tabsParent = document.querySelector('.tabheader__items');
+
     function hideTabsContent() {
         // скрываем табы со страницы
         tabsContent.forEach((item) => {
@@ -15,6 +16,7 @@ window.addEventListener("DOMContentLoaded", () => {
             item.classList.remove('tabheader__item_active');
         });
     }
+
     function showTabsContent(i = 0) {
         // показываем первый таб на странице. также назначем ему класс анимации
         tabsContent[i].classList.add('show', 'fade');
@@ -40,15 +42,15 @@ window.addEventListener("DOMContentLoaded", () => {
     showTabsContent();
     // Timer
     const deadLine = '2022-07-30';
-// функция получает разницу между временем конца таймера и временем на ПК пользователя.
-// Затем преобразует миллисекунды в дни, часы, минуты, секунды.
-// На выходе получаем объект, который содержит в себе время до конца таймера = total, и т.д.
+    // функция получает разницу между временем конца таймера и временем на ПК пользователя.
+    // Затем преобразует миллисекунды в дни, часы, минуты, секунды.
+    // На выходе получаем объект, который содержит в себе время до конца таймера = total, и т.д.
     function getTimeRemaining(endTime) {
         const t = Date.parse(endTime) - Date.parse(new Date()),
-              days = Math.floor(t / (1000 * 60 * 60 * 24)),
-              hours = Math.floor((t / (1000 * 60 * 60)) % 24),
-              minutes = Math.floor((t / 1000 / 60) % 60),
-              seconds = Math.floor((t / 1000) % 60);
+            days = Math.floor(t / (1000 * 60 * 60 * 24)),
+            hours = Math.floor((t / (1000 * 60 * 60)) % 24),
+            minutes = Math.floor((t / 1000 / 60) % 60),
+            seconds = Math.floor((t / 1000) % 60);
         return {
             'total': t,
             'days': days,
@@ -57,15 +59,16 @@ window.addEventListener("DOMContentLoaded", () => {
             'seconds': seconds
         };
     }
+
     function setClock(selector, endtime) {
         // получаем эелементы со страницы
         const timer = document.querySelector(selector),
-              days = timer.querySelector("#days"),
-              hours = timer.querySelector("#hours"),
-              minutes = timer.querySelector("#minutes"),
-              seconds = timer.querySelector("#seconds"),
+            days = timer.querySelector("#days"),
+            hours = timer.querySelector("#hours"),
+            minutes = timer.querySelector("#minutes"),
+            seconds = timer.querySelector("#seconds"),
             //   запускает функцию updateClock каждую секунду
-              timeInterval = setInterval(updateClock, 1000);
+            timeInterval = setInterval(updateClock, 1000);
         // вызываем функцию здесь, чтобы не ждать секунду 
         updateClock();
         // функция для подстановки нуля, если число однозначное
@@ -79,7 +82,7 @@ window.addEventListener("DOMContentLoaded", () => {
         // обновляем таймер
         function updateClock() {
             // вызываем функцию, чтобы получить объект из функции getTimeRemaining
-            const  t = getTimeRemaining(deadLine);
+            const t = getTimeRemaining(deadLine);
             // из объекта вставляем лементы в HTML
             days.innerHTML = getZero(t.days);
             hours.innerHTML = getZero(t.hours);
@@ -94,51 +97,54 @@ window.addEventListener("DOMContentLoaded", () => {
     setClock('.timer', deadLine);
     // Modal
     const btnModal = document.querySelectorAll('[data-modal]'),
-          modal = document.querySelector('.modal'),
-          btnModalClose = document.querySelector('[data-close]');
-        //   функция, которая показывает модальное окно
+        modal = document.querySelector('.modal'),
+        btnModalClose = document.querySelector('[data-close]');
+
+    function openModal() {
+        modal.classList.add('show');
+        modal.classList.remove('hide');
+        document.body.style.overflow = 'hidden';
+    }
+
     function showModal(button) {
         button.forEach((item) => {
             item.addEventListener('click', () => {
-                modal.classList.add('show');
-                modal.classList.remove('hide');
-                // добавить стиль, который не позволяет прокручивать страницу
-                document.body.style.overflow = 'hidden';
-                //другая реализация
-                // modalWindow.classList.toggle('show');
-                // togle добавит класс, если его нет и уберет если есть
+                openModal();
+                clearInterval(modalTimerId);
             });
         });
     }
-    // функция, которая закрывает модальное окно (чтобы не повторять код) при нажатии на кнопку
-    // используется внутри функции, которая в целом скрывает модальное окно при совершени разных действий
+
     function closeModal() {
         modal.classList.add('hide');
         modal.classList.remove('show');
         document.body.style.overflow = '';
     }
-    // функция, которая скрывает модальное окно при нажатии на разные клавиши
+
     function hideModal(button, modalWindow) {
-        // закрывает при нажатии на кнопку
         button.addEventListener('click', () => {
             closeModal();
-            //другая реализация
-            // modalWindow.classList.toggle('show');
-            // togle добавит класс, если его нет и уберет если есть
         });
-        // закрывает при нажатии в пустое место, когда окно открыто
         modalWindow.addEventListener('click', (e) => {
             if (e.target === modalWindow) {
                 closeModal();
             }
         });
-        // закрывает при нажатии esc
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Escape') {
                 closeModal();
             }
         });
     }
+    const modalTimerId = setTimeout(openModal, 6000);
+
+    function showModalByScroll() {
+        if (window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight) {
+            openModal();
+            window.removeEventListener("scroll", showModalByScroll);
+        }
+    }
+    window.addEventListener("scroll", showModalByScroll);
     showModal(btnModal);
     hideModal(btnModalClose, modal);
 });
