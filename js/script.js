@@ -92,4 +92,53 @@ window.addEventListener("DOMContentLoaded", () => {
         }
     }
     setClock('.timer', deadLine);
+    // Modal
+    const btnModal = document.querySelectorAll('[data-modal]'),
+          modal = document.querySelector('.modal'),
+          btnModalClose = document.querySelector('[data-close]');
+        //   функция, которая показывает модальное окно
+    function showModal(button) {
+        button.forEach((item) => {
+            item.addEventListener('click', () => {
+                modal.classList.add('show');
+                modal.classList.remove('hide');
+                // добавить стиль, который не позволяет прокручивать страницу
+                document.body.style.overflow = 'hidden';
+                //другая реализация
+                // modalWindow.classList.toggle('show');
+                // togle добавит класс, если его нет и уберет если есть
+            });
+        });
+    }
+    // функция, которая закрывает модальное окно (чтобы не повторять код) при нажатии на кнопку
+    // используется внутри функции, которая в целом скрывает модальное окно при совершени разных действий
+    function closeModal() {
+        modal.classList.add('hide');
+        modal.classList.remove('show');
+        document.body.style.overflow = '';
+    }
+    // функция, которая скрывает модальное окно при нажатии на разные клавиши
+    function hideModal(button, modalWindow) {
+        // закрывает при нажатии на кнопку
+        button.addEventListener('click', () => {
+            closeModal();
+            //другая реализация
+            // modalWindow.classList.toggle('show');
+            // togle добавит класс, если его нет и уберет если есть
+        });
+        // закрывает при нажатии в пустое место, когда окно открыто
+        modalWindow.addEventListener('click', (e) => {
+            if (e.target === modalWindow) {
+                closeModal();
+            }
+        });
+        // закрывает при нажатии esc
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Escape') {
+                closeModal();
+            }
+        });
+    }
+    showModal(btnModal);
+    hideModal(btnModalClose, modal);
 });
