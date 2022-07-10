@@ -7,7 +7,7 @@ window.addEventListener("DOMContentLoaded", () => {
     function hideTabsContent() {
         // скрываем табы со страницы
         tabsContent.forEach((item) => {
-            // добавляем классы, которые скрывают и показывают эелемент
+            // добавляем классы, которые скрывают и показывают эллемент
             item.classList.add('hide');
             item.classList.remove('show', 'fade');
         });
@@ -149,7 +149,7 @@ window.addEventListener("DOMContentLoaded", () => {
     hideModal(btnModalClose, modal);
     // Используем классы для карточек
     class MenuCard {
-        constructor(src, alt, title, descr, price, parentSelector) {
+        constructor(src, alt, title, descr, price, parentSelector, ...classes) {
             this.src = src;
             this.alt = alt;
             this.title = title;
@@ -157,13 +157,21 @@ window.addEventListener("DOMContentLoaded", () => {
             this.price = price;
             // создаем родительский элемент, в который будем добавлять нашу верстку
             this.parentSelector = document.querySelector(parentSelector);
+            this.classes = classes;
         }
         render() {
             // вызовом метода рендер создаем структуру, которая будет помещаться в определенный див
             const element = document.createElement('div');
+            // задаем класс по умолчанию, если в аргумент classes не передавался
+            if (this.classes.length === 0) {
+                // передается массив, проверяем пустой ли он
+                this.classes = 'menu__item';
+                element.classList.add(this.classes);
+            } else {
+                this.classes.forEach(className => element.classList.add(className));
+            }
             element.innerHTML =
-                `<div class="menu__item">
-                <img src=${this.src} alt=${this.alt}>
+                `<img src=${this.src} alt=${this.alt}>
                 <h3 class="menu__item-subtitle">${this.title}</h3>
                 <div class="menu__item-descr">${this.descr}</div>
                 <div class="menu__item-divider"></div>
@@ -190,7 +198,7 @@ window.addEventListener("DOMContentLoaded", () => {
             "img/tabs/elite.jpg",
             "elite",
             'Меню “Премиум”',
-            'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!',
+            'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан! Будет безумно вкусно!',
             1000,
             ".menu .container")
         .render();
