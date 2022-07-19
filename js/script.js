@@ -212,3 +212,41 @@ window.addEventListener("DOMContentLoaded", () => {
             ".menu .container")
         .render();
 });
+// Forms
+const forms = document.querySelectorAll('form');
+
+const answersUser = {
+    loading: 'Загрузка',
+    success: 'Мы скоро с Вами свяжемся!',
+    failure: 'Что-то пошло не так!'
+};
+
+forms.forEach((item) => {
+    formData(item);
+});
+
+function formData(form) {
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const statusMessage = document.createElement('div');
+        statusMessage.classList = 'status';
+        statusMessage.textContent = answersUser.loading;
+        form.append(statusMessage);
+        const request = new XMLHttpRequest();
+        request.open('POST', 'server.php');
+        const formData = new FormData(form);
+        request.send(formData);
+        request.addEventListener('load', () => {
+            if (request.status == 200) {
+                console.log(request.response);
+                statusMessage.textContent = answersUser.success;
+                form.reset();
+                setTimeout(() => {
+                    statusMessage.remove();
+                }, 2000);
+            } else {
+                statusMessage.textContent = answersUser.failure;
+            }
+        });
+    });
+}
