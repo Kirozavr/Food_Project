@@ -97,8 +97,7 @@ window.addEventListener("DOMContentLoaded", () => {
     setClock('.timer', deadLine);
     // Modal
     const btnModal = document.querySelectorAll('[data-modal]'),
-        modal = document.querySelector('.modal'),
-        btnModalClose = document.querySelector('[data-close]');
+        modal = document.querySelector('.modal');
 
     function openModal() {
         modal.classList.add('show');
@@ -121,12 +120,9 @@ window.addEventListener("DOMContentLoaded", () => {
         document.body.style.overflow = '';
     }
 
-    function hideModal(button, modalWindow) {
-        button.addEventListener('click', () => {
-            closeModal();
-        });
+    function hideModal(modalWindow) {
         modalWindow.addEventListener('click', (e) => {
-            if (e.target === modalWindow) {
+            if (e.target === modalWindow || e.target.getAttribute('data-close') == '') {
                 closeModal();
             }
         });
@@ -146,7 +142,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
     window.addEventListener("scroll", showModalByScroll);
     showModal(btnModal);
-    hideModal(btnModalClose, modal);
+    hideModal(modal);
     // Используем классы для карточек
     class MenuCard {
         constructor(src, alt, title, descr, price, parentSelector, ...classes) {
@@ -211,48 +207,77 @@ window.addEventListener("DOMContentLoaded", () => {
             860,
             ".menu .container")
         .render();
-});
-// Forms
-const forms = document.querySelectorAll('form');
-
-const answersUser = {
-    loading: 'Загрузка',
-    success: 'Мы скоро с Вами свяжемся!',
-    failure: 'Что-то пошло не так!'
-};
-
-forms.forEach((item) => {
-    formData(item);
-});
-
-function formData(form) {
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const statusMessage = document.createElement('div');
-        statusMessage.classList = 'status';
-        statusMessage.textContent = answersUser.loading;
-        form.append(statusMessage);
-        const request = new XMLHttpRequest();
-        request.open('Content-type', 'application/json');
-        request.open('POST', 'server.php');
-        const formData = new FormData(form);
-        const object = {};
-        formData.forEach((value, key) => {
-            object[key] = value;
-        });
-        const json = JSON.stringify(object);
-        request.send(json);
-        request.addEventListener('load', () => {
-            if (request.status == 200) {
-                console.log(request.response);
-                statusMessage.textContent = answersUser.success;
-                form.reset();
-                setTimeout(() => {
-                    statusMessage.remove();
-                }, 2000);
-            } else {
-                statusMessage.textContent = answersUser.failure;
-            }
-        });
+    // Forms
+    const forms = document.querySelectorAll('form');
+    const answersUser = {
+        // Чтобы была картинка вместо загрузки прописываем путь
+        loading: 'img/form/spinner.svg',
+        success: 'Мы скоро с Вами свяжемся!',
+        failure: 'Что-то пошло не так!'
+    };
+    forms.forEach((item) => {
+        formData(item);
     });
-}
+
+    function formData(form) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const statusMessage = document.createElement('img');
+            statusMessage.src = answersUser.loading;
+            // устанавливаем стиль для изображения
+            statusMessage.style.cssText = `
+            display: block;
+            margin: 0 auto;
+            `;
+            // Добавляем спиннер внизу формы, чтобы ее не плющило
+            form.insertAdjacentElement('afterend', statusMessage);
+            const request = new XMLHttpRequest();
+            request.open('Content-type', 'application/json');
+            request.open('POST', 'server.php');
+            const formData = new FormData(form);
+            const object = {};
+            formData.forEach((value, key) => {
+                object[key] = value;
+            });
+            const json = JSON.stringify(object);
+            request.send(json);
+            request.addEventListener('load', () => {
+                if (request.status == 200) {
+                    console.log(request.response);
+                    showThanksModal(answersUser.success);
+                    form.reset();
+                    statusMessage.remove();
+                } else {
+                    showThanksModal(answersUser.failure);
+                }
+            });
+        });
+    }
+
+    function showThanksModal(message) {
+        const prevModalDialog = document.querySelector('.modal__dialog');
+        // Добавляем класс, чтобы скрыть первое модальное окно
+        prevModalDialog.classList.add('hide');
+        openModal();
+        // Создание нового окна с ответом
+        const thanksModal = document.createElement('div');
+        // Одно модальное окно заменяем другим. Добавляем класс модального окна
+        thanksModal.classList.add('modal__dialog');
+        // Создание верстки в новом окне
+        thanksModal.innerHTML = `
+        <div class="modal__content">
+            <div class="modal__close">×</div>
+            <div class="modal__title">${message}</div>
+        </div>
+        `;
+        // Помещаем новое модальное на страницу
+        document.querySelector('.modal').append(thanksModal);
+        // Удаление нового модального окна и вызов старого
+        setTimeout(() => {
+            thanksModal.remove();
+            prevModalDialog.classList.add('show');
+            prevModalDialog.classList.remove('hide');
+            closeModal();
+        }, 4000);
+    }
+});
