@@ -233,9 +233,15 @@ function formData(form) {
         statusMessage.textContent = answersUser.loading;
         form.append(statusMessage);
         const request = new XMLHttpRequest();
+        request.open('Content-type', 'application/json');
         request.open('POST', 'server.php');
         const formData = new FormData(form);
-        request.send(formData);
+        const object = {};
+        formData.forEach((value, key) => {
+            object[key] = value;
+        });
+        const json = JSON.stringify(object);
+        request.send(json);
         request.addEventListener('load', () => {
             if (request.status == 200) {
                 console.log(request.response);
