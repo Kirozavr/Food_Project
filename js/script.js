@@ -231,26 +231,33 @@ window.addEventListener("DOMContentLoaded", () => {
             `;
             // Добавляем спиннер внизу формы, чтобы ее не плющило
             form.insertAdjacentElement('afterend', statusMessage);
-            const request = new XMLHttpRequest();
-            request.open('Content-type', 'application/json');
-            request.open('POST', 'server.php');
+            // Реализация скрипта отправки данныз через fetch()
             const formData = new FormData(form);
             const object = {};
             formData.forEach((value, key) => {
                 object[key] = value;
             });
-            const json = JSON.stringify(object);
-            request.send(json);
-            request.addEventListener('load', () => {
-                if (request.status == 200) {
-                    console.log(request.response);
+            fetch('server.php', {
+                    method: "POST",
+                    headers: {
+                        'Content-type': 'application/json'
+                    },
+                    body: JSON.stringify(object)
+                })
+                // основное действие
+                .then(data => {
+                    console.log(data);
                     showThanksModal(answersUser.success);
-                    form.reset();
                     statusMessage.remove();
-                } else {
+                })
+                // действие на случай ошибки
+                .catch(() => {
                     showThanksModal(answersUser.failure);
-                }
-            });
+                })
+                // действие, которое выполняется всегда - очистка формы
+                .finally(() => {
+                    form.reset();
+                });
         });
     }
 
