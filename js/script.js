@@ -180,33 +180,27 @@ window.addEventListener("DOMContentLoaded", () => {
             this.parentSelector.append(element);
         }
     }
-    // создаем новые менюшки
-    new MenuCard(
-            "img/tabs/vegy.jpg",
-            "vegy",
-            'Меню "Фитнес"',
-            'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
-            600,
-            ".menu .container")
-        .render();
+    const getResource = async (url) => {
+        const res = await fetch(url);
+        if (!res.ok) {
+            // объект ошибки
+            // обрабатываем ошибку - если запрос не смог получить ответ от сервера
+            throw new Error(`Could not fetch ${url}, status ${res.status}`);
+        }
+        return await res.json();
+    };
+    // вызов функции для того, чтобы получить данные карточек с сервера
+    getResource('http://localhost:3000/menu')
+    // обрабатываем массивы с данными карточек
+    .then(data => {
+        // используем деструктуризацию объекта
+        data.forEach(({img, altimg, title, descr, price}) => {
+            // конструктор создается столько раз, сколько объектов в массиве
+            // кусочки объекта передаются во внутрь класса, который запишутся
+            new MenuCard(img, altimg, title, descr, price, '.menu .container').render();
+        });
+    });
 
-    new MenuCard(
-            "img/tabs/elite.jpg",
-            "elite",
-            'Меню “Премиум”',
-            'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан! Будет безумно вкусно!',
-            1000,
-            ".menu .container")
-        .render();
-
-    new MenuCard(
-            "img/tabs/post.jpg",
-            "post",
-            'Меню "Постное"',
-            'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков.',
-            860,
-            ".menu .container")
-        .render();
     // Forms
     const forms = document.querySelectorAll('form');
     const answersUser = {
@@ -216,10 +210,28 @@ window.addEventListener("DOMContentLoaded", () => {
         failure: 'Что-то пошло не так!'
     };
     forms.forEach((item) => {
-        formData(item);
+        bindPostData(item);
     });
+    // функция postData посылает запрос на сервер, получает ответ и трансформирует его в JSON
+    // при вызове функции - передаем URL, который передается в Fetch
+    // data - данные, которые будут поститься в функции
+    // async сообщает функции, что внутри будет асинхронный код
+    const postData = async (url, data) => {
+        // res - promise
+        // создается запрос, который уходит на сервер и записывается в res
+        // await стоит перед операциями, которые необходимо дождаться, прежде чем выполнять код дальше
+        const res = await fetch(url, {
+            method: "POST",
+            headers: {
+                'Content-type': 'application/json'
+            },
+            body: data
+        });
+        // возвращаем fetch в формате JSON
+        return await res.json();
+    };
 
-    function formData(form) {
+    function bindPostData(form) {
         form.addEventListener('submit', (e) => {
             e.preventDefault();
             const statusMessage = document.createElement('img');
@@ -233,28 +245,19 @@ window.addEventListener("DOMContentLoaded", () => {
             form.insertAdjacentElement('afterend', statusMessage);
             // Реализация скрипта отправки данныз через fetch()
             const formData = new FormData(form);
-            const object = {};
-            formData.forEach((value, key) => {
-                object[key] = value;
-            });
-            fetch('server.php', {
-                    method: "POST",
-                    headers: {
-                        'Content-type': 'application/json'
-                    },
-                    body: JSON.stringify(object)
-                })
-                // основное действие
+
+            // преобразование formData в JSON
+            const json = JSON.stringify(Object.fromEntries(formData.entries()));
+
+            postData('http://localhost:3000/requests', json)
                 .then(data => {
                     console.log(data);
                     showThanksModal(answersUser.success);
                     statusMessage.remove();
                 })
-                // действие на случай ошибки
                 .catch(() => {
                     showThanksModal(answersUser.failure);
                 })
-                // действие, которое выполняется всегда - очистка формы
                 .finally(() => {
                     form.reset();
                 });
@@ -288,6 +291,7 @@ window.addEventListener("DOMContentLoaded", () => {
         }, 4000);
     }
     fetch('http://localhost:3000/menu')
-    .then(data => data.json())
-    .then(res => console.log(res));
+        .then(data => data.json())
+        .then(res => console.log(res));
 });
+// npx json-server --watch db.json --port 3000
