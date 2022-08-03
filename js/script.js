@@ -41,7 +41,7 @@ window.addEventListener("DOMContentLoaded", () => {
     hideTabsContent();
     showTabsContent();
     // Timer
-    const deadLine = '2022-07-30';
+    const deadLine = '2022-08-30';
     // функция получает разницу между временем конца таймера и временем на ПК пользователя.
     // Затем преобразует миллисекунды в дни, часы, минуты, секунды.
     // На выходе получаем объект, который содержит в себе время до конца таймера = total, и т.д.
@@ -180,27 +180,34 @@ window.addEventListener("DOMContentLoaded", () => {
             this.parentSelector.append(element);
         }
     }
-    const getResource = async (url) => {
-        const res = await fetch(url);
-        if (!res.ok) {
-            // объект ошибки
-            // обрабатываем ошибку - если запрос не смог получить ответ от сервера
-            throw new Error(`Could not fetch ${url}, status ${res.status}`);
-        }
-        return await res.json();
-    };
+    // const getResource = async (url) => {
+    //     const res = await fetch(url);
+    //     if (!res.ok) {
+    //         // объект ошибки
+    //         // обрабатываем ошибку - если запрос не смог получить ответ от сервера
+    //         throw new Error(`Could not fetch ${url}, status ${res.status}`);
+    //     }
+    //     return await res.json();
+    // };
     // вызов функции для того, чтобы получить данные карточек с сервера
-    getResource('http://localhost:3000/menu')
-    // обрабатываем массивы с данными карточек
-    .then(data => {
-        // используем деструктуризацию объекта
-        data.forEach(({img, altimg, title, descr, price}) => {
-            // конструктор создается столько раз, сколько объектов в массиве
-            // кусочки объекта передаются во внутрь класса, который запишутся
-            new MenuCard(img, altimg, title, descr, price, '.menu .container').render();
-        });
-    });
+    // getResource('http://localhost:3000/menu')
+    // // обрабатываем массивы с данными карточек
+    // .then(data => {
+    //     // используем деструктуризацию объекта
+    //     data.forEach(({img, altimg, title, descr, price}) => {
+    //         // конструктор создается столько раз, сколько объектов в массиве
+    //         // кусочки объекта передаются во внутрь класса, который запишутся
+    //         new MenuCard(img, altimg, title, descr, price, '.menu .container').render();
+    //     });
+    // });
 
+    // Отправка запроса с помощью axios
+    axios.get('http://localhost:3000/menu')
+        .then(data => {
+            data.data.forEach(({img, altimg, title, descr, price}) => {
+                new MenuCard(img, altimg, title, descr, price, '.menu .container').render();
+            });
+        });
     // Forms
     const forms = document.querySelectorAll('form');
     const answersUser = {
@@ -290,8 +297,8 @@ window.addEventListener("DOMContentLoaded", () => {
             closeModal();
         }, 4000);
     }
-    fetch('http://localhost:3000/menu')
-        .then(data => data.json())
-        .then(res => console.log(res));
+    // fetch('http://localhost:3000/menu')
+    //     .then(data => data.json())
+    //     .then(res => console.log(res));
 });
 // npx json-server --watch db.json --port 3000
