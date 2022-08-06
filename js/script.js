@@ -297,8 +297,58 @@ window.addEventListener("DOMContentLoaded", () => {
             closeModal();
         }, 4000);
     }
-    // fetch('http://localhost:3000/menu')
-    //     .then(data => data.json())
-    //     .then(res => console.log(res));
+
+    // Slider
+    const sliderPrev = document.querySelector('.offer__slider-prev'),
+          sliderNext = document.querySelector('.offer__slider-next'),
+          slides = document.querySelectorAll('.offer__slide'),
+        //   переменные для общего количества слайдов и текущего слайда
+          total = document.querySelector('#total'),
+          current = document.querySelector('#current');
+    let slideIndex = 1;
+    // вызов функции с вызовом начального значения
+    showSlides(slideIndex);
+    // общее количество слайдов. Не помещаем в функцию, чтобы при каждом ее вызове количество не показывалось заново
+    if (slides.length < 10) {
+        total.textContent = `0${slides.length}`;
+    } else {
+        total.textContent = slides.length;
+    }
+    // Функция для показа слайдеров. Принимает индекс слайда.
+    function showSlides(n) {
+        // если номер слайдера уходит за границу - возвращаемся к первому или последнему элементу
+        if (n > slides.length) {
+            slideIndex = 1;
+        } 
+
+        if (n < 1) {
+            slideIndex = slides.length;
+        }
+        // скрываем все слайды
+        slides.forEach(item => item.classList.add('hide'));
+        // показываем только первый слайд на странице
+        // в зависимости от индекса функция добавляет классы к разным слайдам в псевдомассиве.
+        slides[slideIndex - 1].classList.add('show');
+        slides[slideIndex - 1].classList.remove('hide');
+        // показываем текущий номер слайда
+        if (slides.length < 10) {
+            current.textContent = `0${slideIndex}`;
+        } else {
+            current.textContent = slideIndex;
+        }
+    }
+    // функция, которая добавляет значение к слайдеру
+    function plusSlides(n) {
+        showSlides(slideIndex += n);
+    }
+    showSlides(1);
+    // при нажатии на стрелочку функция добавляет или отнимает значение к индексу слайда
+    sliderNext.addEventListener('click', () => {
+        plusSlides(1);
+    });
+
+    sliderPrev.addEventListener('click', () => {
+        plusSlides(-1);
+    });
 });
 // npx json-server --watch db.json --port 3000
