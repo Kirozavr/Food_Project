@@ -299,56 +299,137 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     // Slider
+
+    let slideIndex = 1;
+    let offset =0;
+
     const sliderPrev = document.querySelector('.offer__slider-prev'),
           sliderNext = document.querySelector('.offer__slider-next'),
           slides = document.querySelectorAll('.offer__slide'),
         //   переменные для общего количества слайдов и текущего слайда
           total = document.querySelector('#total'),
-          current = document.querySelector('#current');
-    let slideIndex = 1;
-    // вызов функции с вызовом начального значения
-    showSlides(slideIndex);
-    // общее количество слайдов. Не помещаем в функцию, чтобы при каждом ее вызове количество не показывалось заново
+          current = document.querySelector('#current'),
+          slidesWrapper = document.querySelector('.offer__slider-wrapper'),
+          slidesField = document.querySelector('.offer__slider-inner'),
+        // Ширина блока
+        // Метод getComputedStyle() возвращает объект, содержащий значения всех CSS-свойств элемента
+        // из объекта нужно достать свойство с шириной
+          width = window.getComputedStyle(slidesWrapper).width;
+
     if (slides.length < 10) {
         total.textContent = `0${slides.length}`;
+        current.textContent = `0${slideIndex}`;
     } else {
         total.textContent = slides.length;
+        current.textContent = slideIndex;
     }
-    // Функция для показа слайдеров. Принимает индекс слайда.
-    function showSlides(n) {
-        // если номер слайдера уходит за границу - возвращаемся к первому или последнему элементу
-        if (n > slides.length) {
-            slideIndex = 1;
-        } 
 
-        if (n < 1) {
-            slideIndex = slides.length;
+    // задаем ширину обертки, чтобы поместить все слайды внутрь
+    slidesField.style.width = 100 * slides.length + '%';
+    slidesField.style.display = 'flex';
+    // transition описывает скорость перехода объекта от одного значения к другому.
+    slidesField.style.transition = '0.5s all';
+    // скрыли все слайды, которые не помещаются в обертку, как кодовый замок
+    slidesWrapper.style.overflow = 'hidden';
+    // каждому слайду задаем фиксированную ширину
+    slides.forEach(slide => slide.style.width = width);
+
+    sliderNext.addEventListener('click', () => {
+        // проверяем пролистали ли мы слайды до самого конца, чтобы вернуться в начало
+        if (offset == (+width.slice(0, width.length - 2) * (slides.length - 1))) {
+            offset = 0;
+        } else {
+            // при нажатии кнопки вперед добавляется ширина еще одного слайда
+            // слайд смещается
+            offset += +width.slice(0, width.length - 2);
         }
-        // скрываем все слайды
-        slides.forEach(item => item.classList.add('hide'));
-        // показываем только первый слайд на странице
-        // в зависимости от индекса функция добавляет классы к разным слайдам в псевдомассиве.
-        slides[slideIndex - 1].classList.add('show');
-        slides[slideIndex - 1].classList.remove('hide');
-        // показываем текущий номер слайда
+        // при нажатии на кнопку вперед необходимо сдвинуть слайд
+        slidesField.style.transform = `translateX(-${offset}px)`;
+
+        if (slideIndex == slides.length) {
+            slideIndex = 1;
+        } else {
+            slideIndex++;
+        }
+
         if (slides.length < 10) {
             current.textContent = `0${slideIndex}`;
         } else {
             current.textContent = slideIndex;
         }
-    }
-    // функция, которая добавляет значение к слайдеру
-    function plusSlides(n) {
-        showSlides(slideIndex += n);
-    }
-    showSlides(1);
-    // при нажатии на стрелочку функция добавляет или отнимает значение к индексу слайда
-    sliderNext.addEventListener('click', () => {
-        plusSlides(1);
     });
 
     sliderPrev.addEventListener('click', () => {
-        plusSlides(-1);
+        // узнаем, что у нас первый слайд
+        if (offset == 0) {
+            // перемещаемся в самый конец
+            // в переменную записываем последний слайд
+            offset = +width.slice(0, width.length - 2) * (slides.length - 1);
+        } else {
+            // отнимаем ширину слайда, на которую смещаемся
+            offset -= +width.slice(0, width.length - 2);
+        }
+
+        slidesField.style.transform = `translateX(-${offset}px)`;
+
+        if (slideIndex == 1) {
+            slideIndex = slides.length;
+        } else {
+            slideIndex--;
+        }
+
+        if (slides.length < 10) {
+            current.textContent = `0${slideIndex}`;
+        } else {
+            current.textContent = slideIndex;
+        }
     });
+
+
+
+    // // вызов функции с вызовом начального значения
+    // showSlides(slideIndex);
+    // // общее количество слайдов. Не помещаем в функцию, чтобы при каждом ее вызове количество не показывалось заново
+    // if (slides.length < 10) {
+    //     total.textContent = `0${slides.length}`;
+    // } else {
+    //     total.textContent = slides.length;
+    // }
+    // // Функция для показа слайдеров. Принимает индекс слайда.
+    // function showSlides(n) {
+    //     // если номер слайдера уходит за границу - возвращаемся к первому или последнему элементу
+    //     if (n > slides.length) {
+    //         slideIndex = 1;
+    //     } 
+
+    //     if (n < 1) {
+    //         slideIndex = slides.length;
+    //     }
+    //     // скрываем все слайды
+    //     slides.forEach(item => item.classList.add('hide'));
+    //     // показываем только первый слайд на странице
+    //     // в зависимости от индекса функция добавляет классы к разным слайдам в псевдомассиве.
+    //     slides[slideIndex - 1].classList.add('show');
+    //     slides[slideIndex - 1].classList.remove('hide');
+    //     // показываем текущий номер слайда
+    //     if (slides.length < 10) {
+    //         current.textContent = `0${slideIndex}`;
+    //     } else {
+    //         current.textContent = slideIndex;
+    //     }
+    // }
+    // // функция, которая добавляет значение к слайдеру
+    // function plusSlides(n) {
+    //     showSlides(slideIndex += n);
+    // }
+    // showSlides(1);
+    // // при нажатии на стрелочку функция добавляет или отнимает значение к индексу слайда
+    // sliderNext.addEventListener('click', () => {
+    //     plusSlides(1);
+    // });
+
+    // sliderPrev.addEventListener('click', () => {
+    //     plusSlides(-1);
+    // });
 });
 // npx json-server --watch db.json --port 3000
