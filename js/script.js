@@ -304,6 +304,10 @@ window.addEventListener("DOMContentLoaded", () => {
         current.textContent = slideIndex;
     }
 
+    function deletePX(str) {
+        return +str.replace(/\D/g, '');
+    }
+
     // задаем ширину обертки, чтобы поместить все слайды внутрь
     slidesField.style.width = 100 * slides.length + '%';
     slidesField.style.display = 'flex';
@@ -361,12 +365,12 @@ window.addEventListener("DOMContentLoaded", () => {
 
     sliderNext.addEventListener('click', () => {
         // проверяем пролистали ли мы слайды до самого конца, чтобы вернуться в начало
-        if (offset == (+width.slice(0, width.length - 2) * (slides.length - 1))) {
+        if (offset == (deletePX(width) * (slides.length - 1))) {
             offset = 0;
         } else {
             // при нажатии кнопки вперед добавляется ширина еще одного слайда
             // слайд смещается
-            offset += +width.slice(0, width.length - 2);
+            offset += deletePX(width);
         }
         // при нажатии на кнопку вперед необходимо сдвинуть слайд
         slidesField.style.transform = `translateX(-${offset}px)`;
@@ -392,10 +396,10 @@ window.addEventListener("DOMContentLoaded", () => {
         if (offset == 0) {
             // перемещаемся в самый конец
             // в переменную записываем последний слайд
-            offset = +width.slice(0, width.length - 2) * (slides.length - 1);
+            offset = deletePX(width) * (slides.length - 1);
         } else {
             // отнимаем ширину слайда, на которую смещаемся
-            offset -= +width.slice(0, width.length - 2);
+            offset -= deletePX(width);
         }
 
         slidesField.style.transform = `translateX(-${offset}px)`;
@@ -421,7 +425,7 @@ window.addEventListener("DOMContentLoaded", () => {
             const slideTo = e.target.getAttribute('data-slide-to');
 
             slideIndex = slideTo;
-            offset = +width.slice(0, width.length - 2) * (slideTo - 1);
+            offset = deletePX(width) * (slideTo - 1);
 
             slidesField.style.transform = `translateX(-${offset}px)`;
             
