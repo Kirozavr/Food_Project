@@ -183,7 +183,13 @@ window.addEventListener("DOMContentLoaded", () => {
     // Отправка запроса с помощью axios
     axios.get('http://localhost:3000/menu')
         .then(data => {
-            data.data.forEach(({img, altimg, title, descr, price}) => {
+            data.data.forEach(({
+                img,
+                altimg,
+                title,
+                descr,
+                price
+            }) => {
                 new MenuCard(img, altimg, title, descr, price, '.menu .container').render();
             });
         });
@@ -280,21 +286,21 @@ window.addEventListener("DOMContentLoaded", () => {
     // Slider VAR 1
 
     let slideIndex = 1;
-    let offset =0;
+    let offset = 0;
 
     const sliderPrev = document.querySelector('.offer__slider-prev'),
-          sliderNext = document.querySelector('.offer__slider-next'),
-          slides = document.querySelectorAll('.offer__slide'),
+        sliderNext = document.querySelector('.offer__slider-next'),
+        slides = document.querySelectorAll('.offer__slide'),
         //   переменные для общего количества слайдов и текущего слайда
-          slider = document.querySelector('.offer__slider'),
-          total = document.querySelector('#total'),
-          current = document.querySelector('#current'),
-          slidesWrapper = document.querySelector('.offer__slider-wrapper'),
-          slidesField = document.querySelector('.offer__slider-inner'),
+        slider = document.querySelector('.offer__slider'),
+        total = document.querySelector('#total'),
+        current = document.querySelector('#current'),
+        slidesWrapper = document.querySelector('.offer__slider-wrapper'),
+        slidesField = document.querySelector('.offer__slider-inner'),
         // Ширина блока
         // Метод getComputedStyle() возвращает объект, содержащий значения всех CSS-свойств элемента
         // из объекта нужно достать свойство с шириной
-          width = window.getComputedStyle(slidesWrapper).width;
+        width = window.getComputedStyle(slidesWrapper).width;
 
     if (slides.length < 10) {
         total.textContent = `0${slides.length}`;
@@ -321,7 +327,7 @@ window.addEventListener("DOMContentLoaded", () => {
     slider.style.position = 'relative';
 
     const indicators = document.createElement('ol'),
-          dots = [];
+        dots = [];
     indicators.classList.add('carousel-indicators');
     indicators.style.cssText = `
         position: absolute;
@@ -428,7 +434,7 @@ window.addEventListener("DOMContentLoaded", () => {
             offset = deletePX(width) * (slideTo - 1);
 
             slidesField.style.transform = `translateX(-${offset}px)`;
-            
+
             if (slides.length < 10) {
                 current.textContent = `0${slideIndex}`;
             } else {
@@ -440,5 +446,82 @@ window.addEventListener("DOMContentLoaded", () => {
 
         });
     });
+    // Calculator
+
+    const result = document.querySelector('.calculating__result span');
+    let sex = 'female', 
+        height, weight, age, 
+        ratio = 1.375;
+
+    function calcTotal() {
+        // Проверяем, что у нас есть данные для подсчета
+        if (!sex || !height || !weight || !age || !ratio) {
+            result.textContent = '____';
+            return;
+        }
+        // проверяем пол
+        if (sex === 'female') {
+            // вставляем формулу
+            result.textContent = Math.round((447.6 + (9.2 * weight) + (3.1 * height) - (4.3 * age)) * ratio);
+        } else {
+            result.textContent = Math.round((88.36 + (13.4 * weight) + (4.8 * height) - (5.7 * age)) * ratio);
+        }
+    }
+
+    calcTotal();
+
+    // получаем с помощью функции данные из дивов с активностью или полом
+    // функция одна, но с проверкой, чтобы не повторять код для каждого набора блоков
+    function getStaticInformation(parentSelector, activeClass) {
+        // внутри родительского селектора получаем все дивы
+        const elements = document.querySelectorAll(`${parentSelector} div`);
+
+        elements.forEach(elem => {
+            elem.addEventListener('click', (event) => {
+                // проверяем есть ли элемента атрибут, чтобы изменить переменную с рационом данными из атрибута
+                if (event.target.getAttribute('data-ratio')) {
+                    ratio = +event.target.getAttribute('data-ratio');
+                } else {
+                    // т.к. у блоков с полом нет атрибутов, то мы понимаем, что берем данные из блока с полом
+                    sex = event.target.getAttribute('id');
+                }
+                // убираем классы активности у всех элементов и добавляем только нужному
+                elements.forEach(elem => {
+                    elem.classList.remove(activeClass);
+                });
+
+                event.target.classList.add(activeClass);
+
+                calcTotal();
+            });
+            // отслеживаем клики
+        });
+    }
+    // вызов функции для блоков с полом
+    getStaticInformation('#gender', 'calculating__choose-item_active');
+    // вызов функции бля блоков с активностью
+    getStaticInformation('.calculating__choose_big', 'calculating__choose-item_active');
+
+    function getDynamicInformation(selector) {
+        const input = document.querySelector(selector);
+        // берем данные из блоков и записываем их по переменным с помощью switchCase при заполнении формы
+        input.addEventListener('input', () => {
+            switch (input.getAttribute('id')) {
+                case 'height':
+                    height = +input.value;
+                    break;
+                case 'weight':
+                    weight = +input.value;
+                    break;
+                case 'age':
+                    age = +input.value;
+                    break;
+            }
+            calcTotal();
+        });
+    }
+    getDynamicInformation('#height');
+    getDynamicInformation('#weight');
+    getDynamicInformation('#age');
 });
 // npx json-server --watch db.json --port 3000
